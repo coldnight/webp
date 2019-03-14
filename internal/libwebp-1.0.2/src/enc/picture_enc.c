@@ -13,6 +13,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "src/enc/vp8i_enc.h"
 #include "src/dsp/dsp.h"
@@ -251,6 +252,15 @@ static size_t Encode(const uint8_t* rgba, int width, int height, int stride,
   pic.writer = WebPMemoryWrite;
   pic.custom_ptr = &wrt;
   WebPMemoryWriterInit(&wrt);
+
+  // XXX(coldnight): those lines should remove after debug done
+  //
+  // Either
+  config.exact = 1;
+  // or
+  config.method = 0;
+  // can fix the failure of test: writer_test.go:86: 4: average delta too high; got 13, want <= 0
+  printf("------ %d, m: %d, q: %f\n", config.lossless, config.method, quality_factor);
 
   ok = import(&pic, rgba, stride) && WebPEncode(&config, &pic);
   WebPPictureFree(&pic);
